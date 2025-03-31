@@ -1,0 +1,17 @@
+# Go
+bin/
+*.exe
+*.log
+
+# IDEs
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# Go Modules
+vendor/
+
+# Env file
+.env
