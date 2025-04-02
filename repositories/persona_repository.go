@@ -8,7 +8,6 @@ import (
 	"github.com/danysoftdev/microservicio-go-mongodb/models"
 
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // InsertarPersona guarda una nueva persona en la base de datos
@@ -42,37 +41,34 @@ func ObtenerPersonas() ([]models.Persona, error) {
 	return personas, nil
 }
 
-// ObtenerPersonaPorID busca una persona por su ID
-func ObtenerPersonaPorID(id string) (models.Persona, error) {
+// ObtenerPersonaPorDocumento busca una persona por su Documento
+func ObtenerPersonaPorDocumento(documento string) (models.Persona, error) {
 	var persona models.Persona
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	objID, _ := primitive.ObjectIDFromHex(id)
-	err := config.Collection.FindOne(ctx, bson.M{"_id": objID}).Decode(&persona)
+	err := config.Collection.FindOne(ctx, bson.M{"documento": documento}).Decode(&persona)
 	return persona, err
 }
 
-// ActualizarPersona actualiza los datos de una persona por ID
-func ActualizarPersona(id string, persona models.Persona) error {
+// ActualizarPersona actualiza los datos de una persona por Documento
+func ActualizarPersona(documento string, persona models.Persona) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	objID, _ := primitive.ObjectIDFromHex(id)
 	update := bson.M{
 		"$set": persona,
 	}
 
-	_, err := config.Collection.UpdateOne(ctx, bson.M{"_id": objID}, update)
+	_, err := config.Collection.UpdateOne(ctx, bson.M{"documento": documento}, update)
 	return err
 }
 
-// EliminarPersona elimina una persona por su ID
-func EliminarPersona(id string) error {
+// EliminarPersona elimina una persona por su Documento
+func EliminarPersona(documento string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	objID, _ := primitive.ObjectIDFromHex(id)
-	_, err := config.Collection.DeleteOne(ctx, bson.M{"_id": objID})
+	_, err := config.Collection.DeleteOne(ctx, bson.M{"documento": documento})
 	return err
 }
