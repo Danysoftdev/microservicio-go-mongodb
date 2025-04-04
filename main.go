@@ -20,7 +20,7 @@ func main() {
 
 	// Rutas de la API
 	router.HandleFunc("/crear-personas", controllers.CrearPersona).Methods("POST")
-	router.HandleFunc("/buscar-personas", controllers.ObtenerPersonas).Methods("GET")
+	router.HandleFunc("/listar-personas", controllers.ObtenerPersonas).Methods("GET")
 	router.HandleFunc("/buscar-personas/{documento}", controllers.ObtenerPersonaPorDocumento).Methods("GET")
 	router.HandleFunc("/actualizar-personas/{documento}", controllers.ActualizarPersona).Methods("PUT")
 	router.HandleFunc("/eliminar-personas/{documento}", controllers.EliminarPersona).Methods("DELETE")
