@@ -26,9 +26,6 @@
     # Copiar binario compilado desde la etapa builder
     COPY --from=builder /app/app .
     
-    # Copiar el archivo .env solo durante la fase de pruebas
-    COPY --from=builder /app/.env .
-    
     # Establecer usuario no-root
     USER gouser
     
