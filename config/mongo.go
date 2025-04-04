@@ -7,7 +7,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -16,10 +15,6 @@ var DB *mongo.Database
 var Collection *mongo.Collection
 
 func ConectarMongo() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error cargando archivo .env")
-	}
 
 	uri := os.Getenv("MONGO_URI")
 	dbName := os.Getenv("MONGO_DB")
