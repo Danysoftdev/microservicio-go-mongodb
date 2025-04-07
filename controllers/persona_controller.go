@@ -3,7 +3,6 @@ package controllers
 import (
 	"encoding/json"
 	"net/http"
-	"log"
 
 	"github.com/danysoftdev/microservicio-go-mongodb/models"
 	"github.com/danysoftdev/microservicio-go-mongodb/services"
