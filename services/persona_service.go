@@ -72,23 +72,20 @@ func BuscarPersonaPorDocumento(doc string) (models.Persona, error) {
 
 // / ModificarPersona actualiza una persona existente, buscándola por documento
 func ModificarPersona(documento string, p models.Persona) error {
-	if strings.TrimSpace(documento) == "" {
-		return errors.New("el documento no puede estar vacío")
-	}
 
 	if err := ValidarPersona(p); err != nil {
 		return err
-	}
-
-	// No permitir cambiar el documento
-	if p.Documento != documento {
-		return errors.New("no se puede modificar el documento de una persona")
 	}
 
 	// Verificamos si existe la persona
 	_, err := repositories.ObtenerPersonaPorDocumento(documento)
 	if err == mongo.ErrNoDocuments {
 		return errors.New("persona no encontrada")
+	}
+
+	// No permitir cambiar el documento
+	if p.Documento != documento {
+		return errors.New("no se puede modificar el documento de una persona")
 	}
 
 	return repositories.ActualizarPersona(documento, p)
