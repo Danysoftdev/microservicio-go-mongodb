@@ -7,7 +7,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -16,19 +15,10 @@ var DB *mongo.Database
 var Collection *mongo.Collection
 
 func ConectarMongo() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error cargando archivo .env")
-	}
 
-	user := os.Getenv("MONGO_USER")
-	pass := os.Getenv("MONGO_PASS")
-	host := os.Getenv("MONGO_HOST")
-	port := os.Getenv("MONGO_PORT")
-	dbName := os.Getenv("DB_NAME")
+	uri := os.Getenv("MONGO_URI")
+	dbName := os.Getenv("MONGO_DB")
 	collectionName := os.Getenv("COLLECTION_NAME")
-
-	uri := fmt.Sprintf("mongodb://%s:%s@%s:%s", user, pass, host, port)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -43,6 +33,7 @@ func ConectarMongo() {
 
 	fmt.Println("✅ Conectado a MongoDB correctamente.")
 }
+
 
 func DesconectarMongo(client *mongo.Client, ctx context.Context) {
 	err := client.Disconnect(ctx)

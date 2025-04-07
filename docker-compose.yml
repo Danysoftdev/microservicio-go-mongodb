@@ -1,0 +1,38 @@
+services:
+  mongo:
+    image: mongo:6.0
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASS}
+      MONGO_INITDB_DATABASE: ${MONGO_DB}
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - microservicio_net
+    healthcheck:
+      test: [ "CMD-SHELL", "mongosh --quiet --eval 'db.adminCommand(\"ping\")' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: microservicio-go
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongo
+    env_file:
+      - .env
+    networks:
+      - microservicio_net
+
+volumes:
+  mongo_data:
+
+networks:
+  microservicio_net:
+    driver: bridge
