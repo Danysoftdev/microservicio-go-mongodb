@@ -7,6 +7,8 @@ import (
 
 	"github.com/danysoftdev/microservicio-go-mongodb/config"
 	"github.com/danysoftdev/microservicio-go-mongodb/controllers"
+	"github.com/danysoftdev/microservicio-go-mongodb/repositories"
+	"github.com/danysoftdev/microservicio-go-mongodb/services"
 
 	"github.com/gorilla/mux"
 )
@@ -14,6 +16,9 @@ import (
 func main() {
 	// Conectamos a MongoDB
 	config.ConectarMongo()
+
+	// 2. Inyectar el repositorio real
+	services.SetPersonaRepository(repositories.RealPersonaRepository{})
 
 	// Creamos el enrutador
 	router := mux.NewRouter()
