@@ -15,10 +15,17 @@ import (
 
 func main() {
 	// Conectamos a MongoDB
-	config.ConectarMongo()
+	err := config.ConectarMongo()
+	if err != nil {
+		log.Fatal("❌ Error conectando a MongoDB:", err)
+	}
+
 
 	// 2. Inyectar el repositorio real
 	services.SetPersonaRepository(repositories.RealPersonaRepository{})
+
+	// 3. Inyectar la colección de MongoDB
+	repositories.SetCollection(config.Collection)
 
 	// Creamos el enrutador
 	router := mux.NewRouter()

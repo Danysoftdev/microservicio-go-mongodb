@@ -4,18 +4,24 @@ import (
 	"context"
 	"time"
 
-	"github.com/danysoftdev/microservicio-go-mongodb/config"
 	"github.com/danysoftdev/microservicio-go-mongodb/models"
-
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
+
+var collection *mongo.Collection
+
+// Permite inyectar la colección desde fuera (ideal para pruebas)
+func SetCollection(c *mongo.Collection) {
+	collection = c
+}
 
 // InsertarPersona guarda una nueva persona en la base de datos
 func InsertarPersona(persona models.Persona) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	_, err := config.Collection.InsertOne(ctx, persona)
+	_, err := collection.InsertOne(ctx, persona)
 	return err
 }
 
@@ -25,7 +31,7 @@ func ObtenerPersonas() ([]models.Persona, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	cursor, err := config.Collection.Find(ctx, bson.M{})
+	cursor, err := collection.Find(ctx, bson.M{})
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +53,7 @@ func ObtenerPersonaPorDocumento(documento string) (models.Persona, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	err := config.Collection.FindOne(ctx, bson.M{"documento": documento}).Decode(&persona)
+	err := collection.FindOne(ctx, bson.M{"documento": documento}).Decode(&persona)
 	return persona, err
 }
 
@@ -60,7 +66,7 @@ func ActualizarPersona(documento string, persona models.Persona) error {
 		"$set": persona,
 	}
 
-	_, err := config.Collection.UpdateOne(ctx, bson.M{"documento": documento}, update)
+	_, err := collection.UpdateOne(ctx, bson.M{"documento": documento}, update)
 	return err
 }
 
@@ -69,7 +75,7 @@ func EliminarPersona(documento string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	_, err := config.Collection.DeleteOne(ctx, bson.M{"documento": documento})
+	_, err := collection.DeleteOne(ctx, bson.M{"documento": documento})
 	return err
 }
 
