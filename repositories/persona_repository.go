@@ -72,3 +72,25 @@ func EliminarPersona(documento string) error {
 	_, err := config.Collection.DeleteOne(ctx, bson.M{"documento": documento})
 	return err
 }
+
+type RealPersonaRepository struct{}
+
+func (r RealPersonaRepository) InsertarPersona(p models.Persona) error {
+	return InsertarPersona(p)
+}
+
+func (r RealPersonaRepository) ObtenerPersonas() ([]models.Persona, error) {
+	return ObtenerPersonas()
+}
+
+func (r RealPersonaRepository) ObtenerPersonaPorDocumento(doc string) (models.Persona, error) {
+	return ObtenerPersonaPorDocumento(doc)
+}
+
+func (r RealPersonaRepository) ActualizarPersona(doc string, p models.Persona) error {
+	return ActualizarPersona(doc, p)
+}
+
+func (r RealPersonaRepository) EliminarPersona(doc string) error {
+	return EliminarPersona(doc)
+}

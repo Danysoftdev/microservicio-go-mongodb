@@ -9,7 +9,12 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// ValidarPersona asegura que los campos requeridos no estén vacíos o sean inválidos
+var Repo repositories.PersonaRepository
+
+func SetPersonaRepository(r repositories.PersonaRepository) {
+	Repo = r
+}
+
 func ValidarPersona(p models.Persona) error {
 	if strings.TrimSpace(p.Documento) == "" {
 		return errors.New("el documento no puede estar vacío")
@@ -32,37 +37,32 @@ func ValidarPersona(p models.Persona) error {
 	if strings.TrimSpace(p.Direccion) == "" {
 		return errors.New("la dirección no puede estar vacía")
 	}
-
 	return nil
 }
 
-// CrearPersona valida la persona y verifica que no se repita el documento
 func CrearPersona(p models.Persona) error {
 	if err := ValidarPersona(p); err != nil {
 		return err
 	}
 
-	// Verificar si ya existe una persona con ese documento
-	_, err := repositories.ObtenerPersonaPorDocumento(p.Documento)
+	_, err := Repo.ObtenerPersonaPorDocumento(p.Documento)
 	if err == nil {
 		return errors.New("ya existe una persona con ese documento")
 	}
 
-	return repositories.InsertarPersona(p)
+	return Repo.InsertarPersona(p)
 }
 
-// ListarPersonas obtiene todas las personas
 func ListarPersonas() ([]models.Persona, error) {
-	return repositories.ObtenerPersonas()
+	return Repo.ObtenerPersonas()
 }
 
-// BuscarPersonaPorDocumento busca una persona por su documento
 func BuscarPersonaPorDocumento(doc string) (models.Persona, error) {
 	if strings.TrimSpace(doc) == "" {
 		return models.Persona{}, errors.New("el documento no puede estar vacío")
 	}
 
-	persona, err := repositories.ObtenerPersonaPorDocumento(doc)
+	persona, err := Repo.ObtenerPersonaPorDocumento(doc)
 	if err == mongo.ErrNoDocuments {
 		return models.Persona{}, errors.New("persona no encontrada")
 	}
@@ -70,37 +70,36 @@ func BuscarPersonaPorDocumento(doc string) (models.Persona, error) {
 	return persona, err
 }
 
-// / ModificarPersona actualiza una persona existente, buscándola por documento
 func ModificarPersona(documento string, p models.Persona) error {
+	if strings.TrimSpace(documento) == "" {
+		return errors.New("el documento no puede estar vacío")
+	}
 
 	if err := ValidarPersona(p); err != nil {
 		return err
 	}
 
-	// Verificamos si existe la persona
-	_, err := repositories.ObtenerPersonaPorDocumento(documento)
+	_, err := Repo.ObtenerPersonaPorDocumento(documento)
 	if err == mongo.ErrNoDocuments {
 		return errors.New("persona no encontrada")
 	}
 
-	// No permitir cambiar el documento
 	if p.Documento != documento {
 		return errors.New("no se puede modificar el documento de una persona")
 	}
 
-	return repositories.ActualizarPersona(documento, p)
+	return Repo.ActualizarPersona(documento, p)
 }
 
-// BorrarPersona elimina una persona buscándola por documento
 func BorrarPersona(documento string) error {
 	if strings.TrimSpace(documento) == "" {
 		return errors.New("el documento no puede estar vacío")
 	}
 
-	_, err := repositories.ObtenerPersonaPorDocumento(documento)
+	_, err := Repo.ObtenerPersonaPorDocumento(documento)
 	if err == mongo.ErrNoDocuments {
 		return errors.New("persona no encontrada")
 	}
 
-	return repositories.EliminarPersona(documento)
+	return Repo.EliminarPersona(documento)
 }
