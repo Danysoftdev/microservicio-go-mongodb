@@ -6,43 +6,13 @@ import (
 
 	"github.com/danysoftdev/microservicio-go-mongodb/models"
 	"github.com/danysoftdev/microservicio-go-mongodb/services"
+	"github.com/danysoftdev/microservicio-go-mongodb/tests/mocks"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// MockPersonaModificar implementa la interfaz PersonaRepository para las pruebas
-type MockPersonaModificar struct {
-	mock.Mock
-}
-
-func (m *MockPersonaModificar) InsertarPersona(p models.Persona) error {
-	args := m.Called(p)
-	return args.Error(0)
-}
-
-func (m *MockPersonaModificar) ObtenerPersonas() ([]models.Persona, error) {
-	args := m.Called()
-	return args.Get(0).([]models.Persona), args.Error(1)
-}
-
-func (m *MockPersonaModificar) ObtenerPersonaPorDocumento(doc string) (models.Persona, error) {
-	args := m.Called(doc)
-	return args.Get(0).(models.Persona), args.Error(1)
-}
-
-func (m *MockPersonaModificar) ActualizarPersona(doc string, p models.Persona) error {
-	args := m.Called(doc, p)
-	return args.Error(0)
-}
-
-func (m *MockPersonaModificar) EliminarPersona(doc string) error {
-	args := m.Called(doc)
-	return args.Error(0)
-}
-
 func TestModificarPersona(t *testing.T) {
-	mockRepo := new(MockPersonaModificar)
+	mockRepo := new(mocks.MockPersonaRepo)
 	services.SetPersonaRepository(mockRepo)
 
 	personaValida := models.Persona{
@@ -86,7 +56,7 @@ func TestModificarPersona(t *testing.T) {
 	})
 
     t.Run("Debe fallar si la persona no existe", func(t *testing.T) {
-		mockRepo := new(MockPersonaModificar)
+		mockRepo := new(mocks.MockPersonaRepo)
 		services.SetPersonaRepository(mockRepo)
 
 		mockRepo.On("ObtenerPersonaPorDocumento", "123").Return(models.Persona{}, mongo.ErrNoDocuments)
@@ -97,7 +67,7 @@ func TestModificarPersona(t *testing.T) {
 	})
 
 	t.Run("Debe retornar error si falla la actualización", func(t *testing.T) {
-		mockRepo := new(MockPersonaModificar)
+		mockRepo := new(mocks.MockPersonaRepo)
 		services.SetPersonaRepository(mockRepo)
 
 		mockRepo.On("ObtenerPersonaPorDocumento", "123").Return(personaValida, nil)

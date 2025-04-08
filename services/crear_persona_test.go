@@ -5,45 +5,15 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 
 	"github.com/danysoftdev/microservicio-go-mongodb/models"
 	"github.com/danysoftdev/microservicio-go-mongodb/services"
+	"github.com/danysoftdev/microservicio-go-mongodb/tests/mocks"
 )
-
-// MockPersonaRepository es un mock de la interfaz PersonaRepository
-type MockPersonaRepository struct {
-	mock.Mock
-}
-
-func (m *MockPersonaRepository) InsertarPersona(p models.Persona) error {
-	args := m.Called(p)
-	return args.Error(0)
-}
-
-func (m *MockPersonaRepository) ObtenerPersonas() ([]models.Persona, error) {
-	args := m.Called()
-	return args.Get(0).([]models.Persona), args.Error(1)
-}
-
-func (m *MockPersonaRepository) ObtenerPersonaPorDocumento(doc string) (models.Persona, error) {
-	args := m.Called(doc)
-	return args.Get(0).(models.Persona), args.Error(1)
-}
-
-func (m *MockPersonaRepository) ActualizarPersona(doc string, p models.Persona) error {
-	args := m.Called(doc, p)
-	return args.Error(0)
-}
-
-func (m *MockPersonaRepository) EliminarPersona(doc string) error {
-	args := m.Called(doc)
-	return args.Error(0)
-}
 
 // TestCrearPersonaExitosa prueba la creación exitosa de una persona
 func TestCrearPersonaExitosa(t *testing.T) {
-	mockRepo := new(MockPersonaRepository)
+	mockRepo := new(mocks.MockPersonaRepo)
 	services.Repo = mockRepo
 
 	persona := models.Persona{
@@ -67,7 +37,7 @@ func TestCrearPersonaExitosa(t *testing.T) {
 
 // TestCrearPersonaYaExiste prueba cuando el documento ya está registrado
 func TestCrearPersonaYaExiste(t *testing.T) {
-	mockRepo := new(MockPersonaRepository)
+	mockRepo := new(mocks.MockPersonaRepo)
 	services.Repo = mockRepo
 
 	persona := models.Persona{
@@ -88,10 +58,10 @@ func TestCrearPersonaYaExiste(t *testing.T) {
 
 // TestCrearPersonaConDatosInvalidos prueba todos los errores de validación
 func TestCrearPersonaConDatosInvalidos(t *testing.T) {
-	mockRepo := new(MockPersonaRepository)
+	mockRepo := new(mocks.MockPersonaRepo)
 	services.Repo = mockRepo
 
-	mockRepo.On("ObtenerPersonaPorDocumento", mock.Anything).Return(models.Persona{}, errors.New("not found"))
+	mockRepo.On("ObtenerPersonaPorDocumento", "123").Return(models.Persona{}, errors.New("not found"))
 
 	casos := []struct {
 		nombre         string

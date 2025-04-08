@@ -6,43 +6,13 @@ import (
 
 	"github.com/danysoftdev/microservicio-go-mongodb/models"
 	"github.com/danysoftdev/microservicio-go-mongodb/services"
+	"github.com/danysoftdev/microservicio-go-mongodb/tests/mocks"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// MockRepositorio implementa la interfaz PersonaRepository
-type MockRepositorioBuscar struct {
-	mock.Mock
-}
-
-func (m *MockRepositorioBuscar) InsertarPersona(p models.Persona) error {
-	args := m.Called(p)
-	return args.Error(0)
-}
-
-func (m *MockRepositorioBuscar) ObtenerPersonas() ([]models.Persona, error) {
-	args := m.Called()
-	return args.Get(0).([]models.Persona), args.Error(1)
-}
-
-func (m *MockRepositorioBuscar) ObtenerPersonaPorDocumento(doc string) (models.Persona, error) {
-	args := m.Called(doc)
-	return args.Get(0).(models.Persona), args.Error(1)
-}
-
-func (m *MockRepositorioBuscar) ActualizarPersona(doc string, p models.Persona) error {
-	args := m.Called(doc, p)
-	return args.Error(0)
-}
-
-func (m *MockRepositorioBuscar) EliminarPersona(doc string) error {
-	args := m.Called(doc)
-	return args.Error(0)
-}
-
 func TestBuscarPersonaPorDocumento_Exito(t *testing.T) {
-	mockRepo := new(MockRepositorioBuscar)
+	mockRepo := new(mocks.MockPersonaRepo)
 	services.SetPersonaRepository(mockRepo)
 
 	personaMock := models.Persona{
@@ -65,7 +35,7 @@ func TestBuscarPersonaPorDocumento_Exito(t *testing.T) {
 }
 
 func TestBuscarPersonaPorDocumento_Vacio(t *testing.T) {
-	mockRepo := new(MockRepositorioBuscar)
+	mockRepo := new(mocks.MockPersonaRepo)
 	services.SetPersonaRepository(mockRepo)
 
 	_, err := services.BuscarPersonaPorDocumento("")
@@ -75,7 +45,7 @@ func TestBuscarPersonaPorDocumento_Vacio(t *testing.T) {
 }
 
 func TestBuscarPersonaPorDocumento_NoEncontrado(t *testing.T) {
-	mockRepo := new(MockRepositorioBuscar)
+	mockRepo := new(mocks.MockPersonaRepo)
 	services.SetPersonaRepository(mockRepo)
 
 	mockRepo.On("ObtenerPersonaPorDocumento", "999").Return(models.Persona{}, mongo.ErrNoDocuments)
@@ -88,7 +58,7 @@ func TestBuscarPersonaPorDocumento_NoEncontrado(t *testing.T) {
 }
 
 func TestBuscarPersonaPorDocumento_ErrorBaseDeDatos(t *testing.T) {
-	mockRepo := new(MockRepositorioBuscar)
+	mockRepo := new(mocks.MockPersonaRepo)
 	services.SetPersonaRepository(mockRepo)
 
 	mockRepo.On("ObtenerPersonaPorDocumento", "123").Return(models.Persona{}, errors.New("error de base de datos"))
