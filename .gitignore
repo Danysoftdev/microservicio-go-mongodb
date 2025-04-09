@@ -3,6 +3,7 @@ bin/
 *.exe
 *.log
 coverage/
+backups/
 
 # IDEs
 .vscode/

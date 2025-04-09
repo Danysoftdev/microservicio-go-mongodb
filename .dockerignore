@@ -10,3 +10,4 @@ tmp/
 .gitignore
 .env
 coverage/
+backups/
