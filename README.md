@@ -20,11 +20,11 @@ Este proyecto es un microservicio desarrollado en Golang que implementa un CRUD 
 
 El microservicio expone una API REST para interactuar con la entidad. A continuación, se describen los endpoints principales:
 
-- **POST /persona**: Crear una nueva persona.
-- **GET /personas**: Obtener todas las personas.
-- **GET /persona/{id}**: Obtener una persona por su ID.
-- **PUT /persona/{id}**: Actualizar una persona por su ID.
-- **DELETE /persona/{id}**: Eliminar una persona por su ID.
+- **POST /crear-personas**: Crear una nueva persona.
+- **GET /buscar-personas**: Obtener todas las personas.
+- **GET /buscar-personas/{documento}**: Obtener una persona por su documento.
+- **PUT /actualizar-personas/{documento}**: Actualizar una persona por su documento.
+- **DELETE /eliminar-persona/{documento}**: Eliminar una persona por su documento.
 
 ## Tecnologías utilizadas
 
