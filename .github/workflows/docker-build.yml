@@ -45,9 +45,7 @@ jobs:
 
       - name: Run container for testing
         run: |
-          docker run -d -p 8080:8080 --name parcial-test danysoftdev/parcial-go:latest
+          docker compose -f docker-compose.yml up -d
           sleep 10  # Espera para asegurar que el contenedor arranque
-          docker logs parcial-test
-          docker stop parcial-test
-          docker rm parcial-test
+          docker logs microservicio-go
 
