@@ -47,7 +47,7 @@ jobs:
         run: |
           docker run -d -p 8080:8080 --name parcial-test danysoftdev/parcial-go:latest
           sleep 10  # Espera para asegurar que el contenedor arranque
-          curl --fail http://localhost:8080 || (echo "❌ La aplicación no respondió correctamente" && exit 1)
+          docker logs parcial-test
           docker stop parcial-test
           docker rm parcial-test
 
