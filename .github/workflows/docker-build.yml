@@ -36,19 +36,18 @@ jobs:
           severity: CRITICAL,HIGH
           exit-code: 1
 
-      - name: Run container for testing
-        if: success()
-        run: |
-          docker run -d -p 8080:8080 --name parcial-test danysoftdev/parcial-go:latest
-          sleep 10  # Espera para asegurar que el contenedor arranque
-          curl --fail http://localhost:8080 || (echo "❌ La aplicación no respondió correctamente" && exit 1)
-          docker stop parcial-test
-          docker rm parcial-test
-
       - name: Push Docker image to DockerHub (only if scan passes)
         if: success()
         uses: docker/build-push-action@v5
         with:
           push: true
           tags: danysoftdev/parcial-go:latest
+
+      - name: Run container for testing
+        run: |
+          docker run -d -p 8080:8080 --name parcial-test danysoftdev/parcial-go:latest
+          sleep 10  # Espera para asegurar que el contenedor arranque
+          curl --fail http://localhost:8080 || (echo "❌ La aplicación no respondió correctamente" && exit 1)
+          docker stop parcial-test
+          docker rm parcial-test
 
