@@ -27,6 +27,8 @@
     
     # Cambiar al usuario seguro
     USER gouser
+
+    EXPOSE 8080
     
     # Ejecutar el binario
     CMD ["./app"]
