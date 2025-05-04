@@ -30,6 +30,10 @@ func main() {
 	// Creamos el enrutador
 	router := mux.NewRouter()
 
+	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, "Hello World")
+	})
+
 	// Rutas de la API
 	router.HandleFunc("/crear-personas", controllers.CrearPersona).Methods("POST")
 	router.HandleFunc("/listar-personas", controllers.ObtenerPersonas).Methods("GET")
