@@ -33,6 +33,15 @@ services:
     networks:
       - microservicio_go_mongo_net
 
+  tester:
+    image: curlimages/curl
+    depends_on:
+      - app
+    networks:
+      - microservicio_go_mongo_net
+    entrypoint: [ "sh", "-c", "sleep 10 && curl -s --fail http://app:8080 || exit 1" ]
+
+
 volumes:
   mongo_data:
 
