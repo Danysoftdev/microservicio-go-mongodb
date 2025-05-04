@@ -36,18 +36,20 @@ jobs:
           severity: CRITICAL,HIGH
           exit-code: 1
 
-      - name: Run container for testing
-        if: success()
-        env:
-          MONGO_ROOT_USER: ${{ secrets.MONGO_ROOT_USER }}
-          MONGO_ROOT_PASS: ${{ secrets.MONGO_ROOT_PASS }}
-          MONGO_DB: ${{ secrets.MONGO_DB }}
+      - name: Create .env file for Docker Compose
         run: |
-          echo "MONGO_ROOT_USER=$MONGO_ROOT_USER" > .env
-          echo "MONGO_ROOT_PASS=$MONGO_ROOT_PASS" >> .env
-          echo "MONGO_DB=$MONGO_DB" >> .env
+          echo "MONGO_ROOT_USER=${{ secrets.MONGO_ROOT_USER }}" > .env
+          echo "MONGO_ROOT_PASS=${{ secrets.MONGO_ROOT_PASS }}" >> .env
+          echo "MONGO_HOST=mongo" >> .env
+          echo "MONGO_PORT=27017" >> .env
+          echo "MONGO_DB=${{ secrets.MONGO_DB }}" >> .env
+          echo "COLLECTION_NAME=${{ secrets.COLLECTION_NAME }}" >> .env
+          echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env
 
-          docker compose --profile test up --abort-on-container-exit
+      - name: Run integration test with Docker Compose
+        if: success()
+        run: |
+          docker compose --profile test --env-file .env up --abort-on-container-exit
           docker compose down
 
       - name: Push Docker image to DockerHub (only if scan and test pass)
