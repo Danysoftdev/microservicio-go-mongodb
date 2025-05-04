@@ -36,13 +36,6 @@ jobs:
           severity: CRITICAL,HIGH
           exit-code: 1
 
-      - name: Push Docker image to DockerHub (only if scan passes)
-        if: success()
-        uses: docker/build-push-action@v5
-        with:
-          push: true
-          tags: danysoftdev/parcial-go:latest
-
       - name: Run container for testing
         if: success()
         env:
@@ -53,10 +46,15 @@ jobs:
           echo "MONGO_ROOT_USER=$MONGO_ROOT_USER" > .env
           echo "MONGO_ROOT_PASS=$MONGO_ROOT_PASS" >> .env
           echo "MONGO_DB=$MONGO_DB" >> .env
-          docker compose -f docker-compose.yml up -d
-          sleep 10
-          curl --fail http://localhost:8080 || (echo "❌ La aplicación no respondió correctamente" && exit 1)
-          docker logs microservicio-go
+
+          docker compose --profile test up --abort-on-container-exit
           docker compose down
+
+      - name: Push Docker image to DockerHub (only if scan and test pass)
+        if: success()
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          tags: danysoftdev/parcial-go:latest
 
 
