@@ -40,7 +40,8 @@ services:
     networks:
       - microservicio_go_mongo_net
     entrypoint: [ "sh", "-c", "sleep 10 && curl -s --fail http://app:8080 || exit 1" ]
-
+    profiles:
+      - test
 
 volumes:
   mongo_data:
