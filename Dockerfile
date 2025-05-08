@@ -15,6 +15,11 @@
     
     # ---------- Etapa 2: Imagen final optimizada ----------
     FROM alpine:latest
+
+    # Label de la imagen
+    LABEL maintainer="danysoftdev" \
+          version="0.1" \
+          description="Imagen optimizada para la aplicación Go"
     
     # Crear un usuario no-root para seguridad
     RUN adduser -D gouser
