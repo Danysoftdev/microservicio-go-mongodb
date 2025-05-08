@@ -1,17 +1,43 @@
-name: Build and Push Docker Image
+name: Build, Test and Push Docker Image
 
 on:
   push:
     branches:
-      - main  # O el branch donde trabajes (puedes cambiarlo)
+      - main
 
 jobs:
-  build-and-push:
+  test-and-build:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.21 # Usa la versión que uses localmente
+
+      - name: Run Unit Tests
+        run: |
+          echo "🧪 Running unit tests..."
+          go test -v ./... -cover
+
+      - name: Create .env file for integration tests
+        run: |
+          echo "MONGO_ROOT_USER=${{ secrets.MONGO_ROOT_USER }}" > .env
+          echo "MONGO_ROOT_PASS=${{ secrets.MONGO_ROOT_PASS }}" >> .env
+          echo "MONGO_HOST=mongo" >> .env
+          echo "MONGO_PORT=27017" >> .env
+          echo "MONGO_DB=${{ secrets.MONGO_DB }}" >> .env
+          echo "COLLECTION_NAME=${{ secrets.COLLECTION_NAME }}" >> .env
+          echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env
+
+      - name: Run Integration Tests with Docker Compose
+        run: |
+          echo "🧪 Running integration tests..."
+          docker compose --profile test --env-file .env up --abort-on-container-exit
+          docker compose down
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -25,9 +51,9 @@ jobs:
       - name: Build Docker image (without pushing yet)
         uses: docker/build-push-action@v5
         with:
-          load: true  # Esto carga la imagen localmente para que pueda ser escaneada
+          load: true
           tags: danysoftdev/parcial-go:latest
- 
+
       - name: Scan Docker image with Trivy
         uses: aquasecurity/trivy-action@0.28.0
         with:
@@ -36,27 +62,8 @@ jobs:
           severity: CRITICAL,HIGH
           exit-code: 1
 
-      - name: Create .env file for Docker Compose
-        run: |
-          echo "MONGO_ROOT_USER=${{ secrets.MONGO_ROOT_USER }}" > .env
-          echo "MONGO_ROOT_PASS=${{ secrets.MONGO_ROOT_PASS }}" >> .env
-          echo "MONGO_HOST=mongo" >> .env
-          echo "MONGO_PORT=27017" >> .env
-          echo "MONGO_DB=${{ secrets.MONGO_DB }}" >> .env
-          echo "COLLECTION_NAME=${{ secrets.COLLECTION_NAME }}" >> .env
-          echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env
-
-      - name: Run integration test with Docker Compose
-        if: success()
-        run: |
-          docker compose --profile test --env-file .env up --abort-on-container-exit
-          docker compose down
-
-      - name: Push Docker image to DockerHub (only if scan and test pass)
-        if: success()
+      - name: Push Docker image to DockerHub
         uses: docker/build-push-action@v5
         with:
           push: true
           tags: danysoftdev/parcial-go:latest
-
-
