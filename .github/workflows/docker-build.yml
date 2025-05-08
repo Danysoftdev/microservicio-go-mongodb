@@ -1,29 +1,57 @@
-name: Build, Test and Push Docker Image
+name: Build and Push Docker Image
 
 on:
   push:
     branches:
-      - main
+      - main  # O tu rama principal
 
 jobs:
-  test-and-build:
+  test-build-push:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: 📥 Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Go
+      - name: 🔧 Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.21 # Usa la versión que uses localmente
+          go-version: '1.21'  # o tu versión de Go
 
-      - name: Run Unit Tests
+      - name: ✅ Run Unit Tests
         run: |
           echo "🧪 Running unit tests..."
-          go test -v ./... -cover
+          go test -v ./... -tags="!integration" -cover
 
-      - name: Create .env file for integration tests
+      - name: 🧪 Run Integration Tests (Testcontainers)
+        run: |
+          echo "🌐 Running integration tests..."
+          go test -v ./... -tags=integration
+
+      - name: 🛠️ Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🔐 Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: 🏗️ Build Docker image (locally)
+        uses: docker/build-push-action@v5
+        with:
+          load: true
+          tags: danysoftdev/parcial-go:latest
+
+      - name: 🔍 Scan Docker image with Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: danysoftdev/parcial-go:latest
+          format: table
+          severity: CRITICAL,HIGH
+          exit-code: 1
+
+      - name: 🌱 Create .env file for Docker Compose
         run: |
           echo "MONGO_ROOT_USER=${{ secrets.MONGO_ROOT_USER }}" > .env
           echo "MONGO_ROOT_PASS=${{ secrets.MONGO_ROOT_PASS }}" >> .env
@@ -33,37 +61,14 @@ jobs:
           echo "COLLECTION_NAME=${{ secrets.COLLECTION_NAME }}" >> .env
           echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Build Docker image (without pushing yet)
-        uses: docker/build-push-action@v5
-        with:
-          load: true
-          tags: danysoftdev/parcial-go:latest
-
-      - name: Scan Docker image with Trivy
-        uses: aquasecurity/trivy-action@0.28.0
-        with:
-          image-ref: danysoftdev/parcial-go:latest
-          format: table
-          severity: CRITICAL,HIGH
-          exit-code: 1
-      
-      - name: Run Integration Tests with Docker Compose
+      - name: 🔁 Run Docker Compose Integration Test
         run: |
-          echo "🧪 Running integration tests..."
           docker compose --profile test --env-file .env up --abort-on-container-exit
           docker compose down
 
-      - name: Push Docker image to DockerHub
+      - name: 🚀 Push Docker image to DockerHub
         uses: docker/build-push-action@v5
+        if: success()
         with:
           push: true
           tags: danysoftdev/parcial-go:latest
