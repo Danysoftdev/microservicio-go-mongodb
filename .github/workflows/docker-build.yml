@@ -51,12 +51,12 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           load: true
-          tags: ${{ env.REGISTRO }}/${{ lower(github.repository) }}:latest
+          tags: ${{ env.REGISTRO }}/${{ github.repository.toLowerCase() }}:latest
 
       - name: 🔍 Scan Docker image with Trivy
         uses: aquasecurity/trivy-action@0.28.0
         with:
-          image-ref: ${{ env.REGISTRO }}/${{ lower(github.repository) }}:latest
+          image-ref: ${{ env.REGISTRO }}/${{ github.repository.toLowerCase() }}:latest
           format: table
           severity: CRITICAL,HIGH
           exit-code: 1
@@ -81,7 +81,7 @@ jobs:
         if: success()
         with:
           push: true
-          tags: ${{ env.REGISTRO }}/${{ lower(github.repository) }}:latest
+          tags: ${{ env.REGISTRO }}/${{ github.repository.toLowerCase() }}:latest
           labels: |
             org.opencontainers.image.source=https://github.com/danysoftdev/microservicio-go-mongodb
 
