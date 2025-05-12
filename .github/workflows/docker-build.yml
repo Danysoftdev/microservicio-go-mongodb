@@ -83,6 +83,12 @@ jobs:
           docker compose --profile test --env-file .env up --abort-on-container-exit
           docker compose down
 
+      - name: 🧾 Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRO }}/${{ env.REPO_NOMBRE_LOWER }}
+
       - name: 🚀 Push Docker image to GitHub Container Registry
         uses: docker/build-push-action@v5
         if: success()
