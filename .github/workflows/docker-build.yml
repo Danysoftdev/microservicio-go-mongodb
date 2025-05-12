@@ -72,6 +72,12 @@ jobs:
           echo "COLLECTION_NAME=${{ secrets.COLLECTION_NAME }}" >> .env
           echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env
 
+      - name: 🔐 Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: 🔁 Run Docker Compose Integration Test
         run: |
           docker compose --profile test --env-file .env up --abort-on-container-exit
@@ -85,12 +91,6 @@ jobs:
           tags: ${{ env.REGISTRO }}/${{ env.REPO_NOMBRE_LOWER }}:latest
           labels: |
             org.opencontainers.image.source=https://github.com/danysoftdev/microservicio-go-mongodb
-
-      #- name: 🔐 Login to DockerHub
-      #  uses: docker/login-action@v3
-      #  with:
-      #    username: ${{ secrets.DOCKERHUB_USERNAME }}
-      #    password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       #- name: 🚀 Push Docker image to DockerHub
       #  uses: docker/build-push-action@v5
