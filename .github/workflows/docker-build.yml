@@ -7,7 +7,6 @@ on:
 
 env:
   REGISTRO: ghcr.io
-  NOMBRE_IMAGEN: ${{ github.repository }}
 
 jobs:
   test-build-push:
@@ -52,12 +51,12 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           load: true
-          tags: ${{ env.REGISTRO }}/${{ env.NOMBRE_IMAGEN }}:latest
+          tags: ${{ env.REGISTRO }}/${{ lower(github.repository) }}:latest
 
       - name: 🔍 Scan Docker image with Trivy
         uses: aquasecurity/trivy-action@0.28.0
         with:
-          image-ref: ${{ env.REGISTRO }}/${{ env.NOMBRE_IMAGEN }}:latest
+          image-ref: ${{ env.REGISTRO }}/${{ lower(github.repository) }}:latest
           format: table
           severity: CRITICAL,HIGH
           exit-code: 1
@@ -82,7 +81,7 @@ jobs:
         if: success()
         with:
           push: true
-          tags: ${{ env.REGISTRO }}/${{ env.NOMBRE_IMAGEN }}:latest
+          tags: ${{ env.REGISTRO }}/${{ lower(github.repository) }}:latest
           labels: |
             org.opencontainers.image.source=https://github.com/danysoftdev/microservicio-go-mongodb
 
