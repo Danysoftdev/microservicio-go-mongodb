@@ -26,6 +26,8 @@ El microservicio expone una API REST para interactuar con la entidad. A continua
 - **PUT /actualizar-personas/{documento}**: Actualizar una persona por su documento.
 - **DELETE /eliminar-persona/{documento}**: Eliminar una persona por su documento.
 
+## Workflows
+
 ## Tecnologías utilizadas
 
 - Golang
